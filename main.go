@@ -71,28 +71,15 @@ func main() {
 
 	writer.Start()
 
-	var nbIDsSecond, totalOps int64
-	var opsSecond []int64
-	var i = 0
+	var nbIDsSecond, opsSecond int64
 	nbIDsSecond = 0
 	for {
 		nbIDsFirst, _ := config.Client.SCard(config.Key).Result()
 
-		if i != 0 {
-			opsSecond = append(opsSecond, nbIDsFirst-nbIDsSecond)
-		} else {
-			opsSecond = append(opsSecond, 0)
-			i = 1
-		}
-
 		// Get current time
 		timeNow := time.Now().Format(time.RFC850)
 
-		// Average ops/s
-		for _, ops := range opsSecond {
-			totalOps += ops
-		}
-		opsPerSecond := totalOps / int64(len(opsSecond))
+		opsSecond = nbIDsFirst - nbIDsSecond
 
 		fmt.Fprintln(writer, color.Green("[✔] [")+
 			color.Yellow(timeNow)+
@@ -102,8 +89,8 @@ func main() {
 			color.Yellow(strconv.FormatInt(nbIDsFirst, 10))+
 			color.Green("\n[✔]")+
 			color.Yellow(" -> ")+
-			color.Green("Average ops/s: ")+
-			color.Yellow(strconv.FormatInt(opsPerSecond, 10)))
+			color.Green("IDs/s: ")+
+			color.Yellow(strconv.FormatInt(opsSecond, 10)))
 
 		nbIDsSecond, _ = config.Client.SCard(config.Key).Result()
 
